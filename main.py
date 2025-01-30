@@ -3,6 +3,8 @@ from flet import *
 
 
 
+DIR_FILE_ANSEWER_AND_INFOS="answer_and_info.txt"
+
 
 DIC_ANSWER={"1":"0"  ,   "2":"1",   "3":"2"  ,  "4":"3"
 
@@ -21,24 +23,29 @@ DIC_ANSWER={"1":"0"  ,   "2":"1",   "3":"2"  ,  "4":"3"
 
 
 def write_answer_on_txt_file(n,answer):
-    n=str(n)
+    """n=str(n)
     if ".txt" not in n:
         dir_file_question=n+".txt"
     else :
         dir_file_question=n
-    #write
-    f=open(dir_file_question,"w")
-    f.write(answer)
+    """
+    #read txt file
+    f=open(DIR_FILE_ANSEWER_AND_INFOS,"r")
+    s=f.readlines()
     f.close()
 
-    #read()
+    print(s)
 
-    #write
-    f=open(dir_file_question,"r")
-    answer_writed=f.read()
+    #replace answer of questioon number n
+    new_answer=f"{n}:{answer}\n"
+    s[int(n)]=new_answer
+    
+
+    #writeslines
+    f=open(DIR_FILE_ANSEWER_AND_INFOS,"w")
+    f.writelines(s)
     f.close()
-
-    return answer_writed
+    
     
         
 
@@ -58,7 +65,7 @@ def organizeAnswer(answer):
 
     
 
-def on_click_principal(e,list_Buttons,text_answer,page):
+def on_click_principal(e,list_Buttons,text_answer,page,number_question):
         print("on_click_principal")
         val = e.control.text
         index=int(val)-1
@@ -66,10 +73,10 @@ def on_click_principal(e,list_Buttons,text_answer,page):
 
         old_color=B.bgcolor
 
-        if  old_color=="red" :
+        if  old_color=="#ff585d" :
             new_color="blue"
         if  old_color=="blue" :
-            new_color="red"
+            new_color="#ff585d"    #ff585d    
             
         B.bgcolor=new_color 
         
@@ -86,12 +93,16 @@ def on_click_principal(e,list_Buttons,text_answer,page):
         
 
         #
-        number_question="1"
-        answer_writed=write_answer_on_txt_file(number_question ,new_answer)
+        
+        #answer_writed=
+        
+        write_answer_on_txt_file(number_question ,new_answer)
 
         #update text_answer
-        print(text_answer)
-        text_answer.text=answer_writed
+        #print(text_answer)
+        text_answer.text=new_answer
+
+        
         
 
         page.update()
@@ -124,7 +135,8 @@ def main(page:Page):
 
     #on_click_1
     def on_click(e):
-        on_click_principal(e,list_Buttons,text_answer,page)
+        number_question=int(B_number_question.text.split("-")[1])
+        on_click_principal(e,list_Buttons,text_answer,page,number_question)
 
     def go_next_question(e):
         print("go_next_question")
@@ -152,6 +164,26 @@ def main(page:Page):
 
     def got_to_specific_question(n):
         B_number_question.text=f"السؤال-{n}"
+        
+
+        #load answer
+        #colrer all with red
+        for B in list_Buttons  :B.bgcolor="#ff585d"
+
+        #read anwer
+        #rja3
+        f=open(DIR_FILE_ANSEWER_AND_INFOS,"r")
+        s=f.readlines()
+        f.close()
+
+        answer=s[int(n)].replace("\n","").split(":")[1].split("-")
+        print(" answer and number question ",n,answer)
+        for i in range(4):
+            if f"{i+1}" in answer : 
+                B=list_Buttons[i]
+                B.bgcolor="blue"
+
+        #update
         page.update()
 
 
@@ -222,6 +254,27 @@ def main(page:Page):
             f.close()
         #page.update()
         page.update()
+
+        #creat file DIR_FILE_ANSEWER_AND_INFOS if not exist
+        try :
+            f=open(DIR_FILE_ANSEWER_AND_INFOS,"r")
+            s=f.readlines()
+            f.close()
+            if  "info:number_serie" not in s[0] :
+                analyser_file_answer_and_info()
+                
+        except :
+            analyser_file_answer_and_info()
+            
+
+    def analyser_file_answer_and_info():
+
+        list_infos=["info:number_serie=1#number_question=1"]
+        list_answer=[ f"{i}:-\n"  for i  in range(1,41)]
+        list_=list_infos+list_answer
+        f=open(DIR_FILE_ANSEWER_AND_INFOS,"w")
+        f.writelines(list_)
+        f.close()
             
 
     
@@ -289,10 +342,10 @@ def main(page:Page):
     #
     text_answer=TextButton(text="-", width=B_with, height=50)
 
-    B1=FilledButton(text="1",bgcolor="red",width=B_with,height=B_hieght,on_click=on_click)
-    B2=FilledButton(text="2",bgcolor="red",width=B_with,height=B_hieght,on_click=on_click)
-    B3=FilledButton(text="3",bgcolor="red",width=B_with,height=B_hieght,on_click=on_click)
-    B4=FilledButton(text="4",bgcolor="red",width=B_with,height=B_hieght,on_click=on_click)
+    B1=FilledButton(text="1",bgcolor="#ff585d",width=B_with,height=B_hieght,on_click=on_click)
+    B2=FilledButton(text="2",bgcolor="#ff585d",width=B_with,height=B_hieght,on_click=on_click)
+    B3=FilledButton(text="3",bgcolor="#ff585d",width=B_with,height=B_hieght,on_click=on_click)
+    B4=FilledButton(text="4",bgcolor="#ff585d",width=B_with,height=B_hieght,on_click=on_click)
     list_Buttons=[B1,B2,B3,B4]
     
     list_number_question_text_answser=[B_number_question,text_answer]
